@@ -16,7 +16,6 @@ export default function OAuth() {
       const user = result.user
       
       //check if the user data is already in db
-
       const docRef = doc(db, "users", user.uid)
       const docSnap = await getDoc(docRef)
       
