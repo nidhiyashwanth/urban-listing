@@ -1,9 +1,15 @@
 import React, { useState } from 'react'
+import Spinner from "../components/Spinner";
+import { toast } from 'react-toastify';
+import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
+import {getAuth} from "firebase/auth"
+import {v4 as uuidv4} from "uuid"
 
 
 export default function CreateListing() {
+  const auth = getAuth()
   const [geolocationEnabled, setGeolocationEnabled] = useState(true)
-
+  const [loading, setLoading] = useState(false)
   const [formData, setFormData] = useState({
     type: "rent",
     name: "",
@@ -17,10 +23,11 @@ export default function CreateListing() {
     regularPrice: 0,
     discountedPrice: 0,
     latitude: 0,
-    longitude: 0
+    longitude: 0,
+    images: {}
   });
 
-  const { type, name, bedrooms, bathrooms, parking, furnished, address, description, offer, regularPrice, discountedPrice, latitude, longitude } = formData;
+  const { type, name, bedrooms, bathrooms, parking, furnished, address, description, offer, regularPrice, discountedPrice, latitude, longitude, images } = formData;
   
   function onChange(e) {
     let boolean = null;
@@ -45,9 +52,58 @@ export default function CreateListing() {
       }));
     }
   }
-  function onSubmit(e){
+  async function onSubmit(e){
     e.preventDefault();
-    
+    setLoading(true)
+    if(discountedPrice>=regularPrice){
+      setLoading(false)
+      toast.error("Discounted price must be lower than Regular Price")
+      return;
+    }
+    if(images.length >6){
+      setLoading(false)
+      toast.error("Maximum 6 images allowed")
+      return;
+    }
+    let geolocation = {}
+    let location
+    if(geolocationEnabled){
+      const response = await fetch(`https://maps.googleapis.com/maps/api/geocode/json?address=${address}&key=${process.env.REACT_APP_GEOCODE_API_KEY}`);
+      const data = await response.json()
+      console.log(data)
+      geolocation.lat = data.results[0]?.geometry.location.lat??0;
+      geolocation.lng = data.results[0]?.geometry.location.lng??0;
+      location = data.status === "ZERO_RESULTS" && undefined;
+      if(location === undefined || location.includes("undefined")){
+        setLoading(false)
+        toast.error("Please enter correct address")
+        return
+      }
+    }
+    else {
+      geolocation.lat = latitude;
+      geolocation.lng = longitude;
+    }
+
+    async function storeImage(image){
+        return new Promise((resolve, reject) => {
+          const storage = getStorage()
+          const filename = `${auth.currentUser.uid}-${image.name}-${uuidv4()}`
+        })
+    }
+    const imgUrls = await Promise.all(
+      [...images].map((image)=>storeImage(image)).catch((error) => {
+        setLoading(false)
+        toast.error("Images now uploaded ")
+        return
+      })
+    )
+  }
+
+  
+
+  if(loading){
+    return <Spinner/>
   }
 
   return (
