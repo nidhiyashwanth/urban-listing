@@ -6,12 +6,13 @@ import Spinner from '../components/Spinner'
 import {Swiper, SwiperSlide} from "swiper/react"
 import SwiperCore, {EffectFade, Autoplay, Navigation, Pagination} from "swiper"
 import "swiper/css/bundle"
+import { type } from '@testing-library/user-event/dist/type'
 
 export default function Listing() {
     const params = useParams()
     const [listing, setListing] = useState(null)
     const [loading, setLoading] = useState(true)
-    SwiperCore.use(Autoplay, Navigation, Pagination)
+    SwiperCore.use((Autoplay, Navigation, Pagination))
     useEffect(()=>{
         async function fetchListing(){
             const docRef = doc(db, "listings", params.listingId)
@@ -28,10 +29,10 @@ export default function Listing() {
     }
   return (
     <main>
-        <Swiper>
+        <Swiper slidesPerView={1} navigation pagination={{type: "progressbar"}} effect='fade' modules={[EffectFade]} autoplay={{delay: 3000}}>
             {listing.imgUrls.map((url, index)=>(
                 <SwiperSlide key={index}>
-                    <div className='' style={{background:`url(${listing.imgUrls[index]})`}}>
+                    <div className=' relative w-full overflow-hidden h-[300px] ' style={{background:`url(${listing.imgUrls[index]}) center no-repeat `, backgroundSize:"cover"}}>
 
                     </div>
                 </SwiperSlide>
