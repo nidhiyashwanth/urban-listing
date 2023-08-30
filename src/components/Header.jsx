@@ -25,7 +25,7 @@ export default function Header() {
     <div className='bg-white border-b shadow-sm sticky top-0 z-40'>
       <header className='flex justify-between items-center px-3 max-w-6xl mx-auto'>
         <div>
-          <img src="https://i.ibb.co/hKjn3CH/logo-removebg-preview.png" alt="logo" className='h-5 cursor-pointer' onClick={() => navigate("/")} />
+          <img src="https://cdn-icons-png.flaticon.com/512/2603/2603710.png" alt="logo" className='cursor-pointer h-9 w-9' onClick={() => navigate("/")} />
         </div>
         <div>
           <ul className='flex space-x-10'>
